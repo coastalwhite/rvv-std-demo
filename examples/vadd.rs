@@ -23,12 +23,12 @@ unsafe fn vadd(x: &[u8], y: &[u8], result: &mut [u8]) {
             println!("[{i}]: VL = {vl}");
             i += 1;
 
-            ctx.reg::<0>().load(x);
-            ctx.reg::<1>().load(y);
+            ctx.vle8_v::<0>(x);
+            ctx.vle8_v::<1>(y);
 
-            ctx.add::<2, 0, 1>();
+            ctx.vadd_vv::<2, 0, 1>();
 
-            ctx.reg::<2>().store(result);
+            ctx.vse8_v::<2>(result);
 
             remaining -= vl;
 
