@@ -1,0 +1,7 @@
+[build]
+target = "riscv64gc-unknown-linux-gnu"
+
+[target.riscv64gc-unknown-linux-gnu]
+runner = "qemu-riscv64 -cpu rv64,v=true,vlen=128,vext_spec=v1.0"
+linker = "riscv64-linux-gnu-gcc"
+rustflags = ["-C", "target-feature=+crt-static,+v"]
