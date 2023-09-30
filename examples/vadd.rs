@@ -14,8 +14,15 @@ unsafe fn vadd(x: &[u8], y: &[u8], result: &mut [u8]) {
     let mut y = y as *const [u8] as *const u8;
     let mut result = result as *mut [u8] as *mut u8;
 
+    let mut i = 0;
+
     while remaining > 0 {
         <RVV<u8>>::new(remaining).go(|ctx| {
+            let vl = ctx.vl;
+
+            println!("[{i}]: VL = {vl}");
+            i += 1;
+
             ctx.reg::<0>().load(x);
             ctx.reg::<1>().load(y);
 
@@ -23,12 +30,12 @@ unsafe fn vadd(x: &[u8], y: &[u8], result: &mut [u8]) {
 
             ctx.reg::<2>().store(result);
 
-            remaining -= ctx.vl;
+            remaining -= vl;
 
             unsafe {
-                x = x.offset(ctx.vl as isize);
-                y = y.offset(ctx.vl as isize);
-                result = result.offset(ctx.vl as isize);
+                x = x.offset(vl as isize);
+                y = y.offset(vl as isize);
+                result = result.offset(vl as isize);
             }
         });
     }
@@ -40,4 +47,15 @@ fn main() {
     unsafe { vadd(&[1, 2, 3], &[6, 3, 5], &mut result) };
 
     assert_eq!(result, [7, 5, 8]);
+
+    let x: [u8; 435] = std::array::from_fn(|i| (i % 10) as u8);
+    let y: [u8; 435] = std::array::from_fn(|i| (i % 23) as u8);
+    let mut result = [0u8; 435];
+
+    unsafe { vadd(&x, &y, &mut result) };
+
+    assert_eq!(
+        result,
+        std::array::from_fn(|i| (i % 10) as u8 + (i % 23) as u8)
+    );
 }

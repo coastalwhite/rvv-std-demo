@@ -9,6 +9,7 @@ pub struct RVVContext<E> {
     pub vl: usize,
     _phantom: PhantomData<E>,
 }
+
 #[derive(Clone, Copy)]
 pub struct VRegister<const N: usize, E>(PhantomData<([(); N], E)>);
 
